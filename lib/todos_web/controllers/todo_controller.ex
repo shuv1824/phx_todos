@@ -12,4 +12,9 @@ defmodule TodosWeb.TodoController do
     todo = Todolist.get_todo!(id)
     render(conn, :show, todo: todo)
   end
+
+  def create(conn, %{"todo" => todo_params}) do
+    {:ok, todo} = Todolist.create_todo(todo_params)
+    render(conn, :show, todo: todo)
+  end
 end
