@@ -1,7 +1,10 @@
 defmodule TodosWeb.TodoController do
   use TodosWeb, :controller
 
+  alias TodosWeb.FallbackController
   alias Todos.Todolist
+
+  action_fallback FallbackController
 
   def index(conn, _params) do
     todos = Todolist.list_todos()
@@ -14,7 +17,11 @@ defmodule TodosWeb.TodoController do
   end
 
   def create(conn, %{"todo" => todo_params}) do
-    {:ok, todo} = Todolist.create_todo(todo_params)
-    render(conn, :show, todo: todo)
+    with {:ok, todo} <- Todolist.create_todo(todo_params) do
+      conn
+      |> put_status(:created)
+      |> put_resp_header("location", ~p"/api/todos/#{todo}")
+      |> render(:show, todo: todo)
+    end
   end
 end
